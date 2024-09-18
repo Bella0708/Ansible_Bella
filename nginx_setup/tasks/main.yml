@@ -1,0 +1,38 @@
+---
+- name: Установить Nginx
+  apt:
+    name: nginx
+    state: present
+    update_cache: yes
+
+- name: Создать папку /var/www/website
+  file:
+    path: /var/www/website
+    state: directory
+    owner: www-data
+    group: www-data
+    mode: "0755"
+
+- name: Клонировать репозиторий project
+  git:
+    repo: "https://github.com/AnastasiyaGapochkina01/website"
+    dest: /var/www/website/project
+    update: yes
+
+- name: Копировать конфигурационный файл Nginx
+  copy:
+    src: nginx.conf
+    dest: /etc/nginx/conf.d/nginx.conf
+    owner: root
+    group: root
+    mode: "0644"
+
+- name: Удалить файл /etc/nginx/conf.d/default
+  file:
+    path: /etc/nginx/conf.d/default
+    state: absent
+
+- name: Перезапустить Nginx
+  systemd:
+    name: nginx
+    state: restarted
